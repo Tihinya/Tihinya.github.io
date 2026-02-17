@@ -1,0 +1,9 @@
+touch .nojekyll
+git add .nojekyll
+git commit -m "disable jekyll"
+git push origin main
+```
+
+И убедись что твой workflow файл лежит по правильному пути:
+```
+.github/workflows/deploy.yml
