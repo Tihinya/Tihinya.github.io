@@ -1,0 +1,15 @@
+---
+import SwipeLayout from "../../components/swipe-layout.astro";
+
+export function getStaticPaths() {
+	return [
+		{ params: { path: 'projects' }, props: { initialSlide: 1 } },
+		{ params: { path: 'about' }, props: { initialSlide: 2 } },
+		{ params: { path: 'contact' }, props: { initialSlide: 3 } },
+	];
+}
+
+const { initialSlide } = Astro.props;
+---
+
+<SwipeLayout initialSlide={initialSlide} locale="ru" />

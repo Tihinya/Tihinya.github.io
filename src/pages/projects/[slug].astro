@@ -1,0 +1,63 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import RootLayout from '../../layouts/RootLayout.astro';
+import H1 from '../../components/h1.astro';
+import LanguageSwitcher from '../../components/language-switcher';
+import { t } from '../../i18n/utils';
+
+const locale = 'en';
+
+export async function getStaticPaths() {
+	const projects = await getCollection('projects');
+	return projects.map((project) => ({
+		params: { slug: project.data.slug },
+		props: { project },
+	}));
+}
+
+const { project } = Astro.props;
+const descriptionKey = `project.${project.data.slug}.description`;
+const stackKey = `project.${project.data.slug}.stack`;
+---
+
+<RootLayout title={project.data.title} description={project.data.description} locale={locale}>
+	<LanguageSwitcher locale={locale} currentPath={Astro.url.pathname} client:load />
+	<main class="min-h-dvh p-4 sm:p-8 max-w-screen-lg mx-auto">
+		<a href="/projects" class="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-100 transition-colors mb-8">
+			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+				<path fill="currentColor" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10" opacity=".5"/>
+				<path fill="currentColor" d="M10.47 8.47a.75.75 0 0 1 1.06 1.06l-1.72 1.72H16a.75.75 0 0 1 0 1.5H9.81l1.72 1.72a.75.75 0 1 1-1.06 1.06l-3-3a.75.75 0 0 1 0-1.06z"/>
+			</svg>
+			{t(locale, 'projects.backToProjects')}
+		</a>
+
+		<Image
+			src={project.data.image}
+			alt={project.data.title}
+			class="w-full aspect-video object-cover object-top rounded-lg shadow-lg mb-8"
+		/>
+
+		<H1>{project.data.title}</H1>
+
+		<p class="mt-6 text-lg text-zinc-400 leading-relaxed">
+			{t(locale, descriptionKey)}
+		</p>
+
+		<p class="mt-4 text-sm text-zinc-500">
+			<span class="font-medium text-zinc-400">Stack:</span> {t(locale, stackKey)}
+		</p>
+
+		<a
+			href={project.data.externalUrl}
+			target="_blank"
+			rel="noopener noreferrer"
+			class="mt-8 inline-flex items-center gap-2 text-zinc-100 hover:text-white text-lg transition-colors"
+		>
+			{t(locale, 'projects.visitSite')}
+			<svg xmlns="http://www.w3.org/2000/svg" class="-rotate-45" width="20" height="20" viewBox="0 0 24 24">
+				<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 12h2.5M20 12l-6-6m6 6l-6 6m6-6H9.5"/>
+			</svg>
+		</a>
+	</main>
+</RootLayout>

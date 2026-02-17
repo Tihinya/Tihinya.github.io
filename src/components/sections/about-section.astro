@@ -1,0 +1,30 @@
+---
+import H1 from "../h1.astro";
+import { t } from "../../i18n/utils";
+import type { Locale } from "../../i18n/utils";
+
+interface Props {
+	locale?: Locale;
+}
+
+const { locale = 'en' } = Astro.props;
+---
+
+<div class="p-4 sm:pt-8 sm:px-12 pb-20 min-h-dvh flex flex-col justify-between gap-32 overflow-y-auto">
+	<div class="space-y-4 sm:space-y-12">
+		<H1>{t(locale, 'about.title')}</H1>
+
+		<p class="text-xl xl:text-2xl text-zinc-500 text-balance whitespace-pre-line">
+			{t(locale, 'about.bio')}
+		</p>
+	</div>
+
+	<div class="space-y-2 text-base sm:text-lg">
+		<h2 class="px-4 text-zinc-400 underline underline-offset-4 decoration-zinc-500">{t(locale, 'about.achievements')}</h2>
+
+		<ul class="px-4 text-zinc-400 list-disc list-outside">
+			<li>{t(locale, 'about.achievement1')}</li>
+			<li>{t(locale, 'about.achievement2')}</li>
+		</ul>
+	</div>
+</div>

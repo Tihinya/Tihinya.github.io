@@ -1,0 +1,127 @@
+---
+import RootLayout from "../layouts/RootLayout.astro";
+import LanguageSwitcher from "./language-switcher";
+import HomeSection from "./sections/home-section.astro";
+import ProjectsSection from "./sections/projects-section.astro";
+import AboutSection from "./sections/about-section.astro";
+import ContactSection from "./sections/contact-section.astro";
+import type { Locale } from "../i18n/utils";
+
+interface Props {
+	initialSlide?: number;
+	locale?: Locale;
+}
+
+const { initialSlide = 0, locale = 'en' } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<RootLayout locale={locale}>
+	<LanguageSwitcher locale={locale} currentPath={currentPath} client:load />
+	<div class="swiper" id="main-swiper" data-initial-slide={initialSlide} data-locale={locale}>
+		<div class="swiper-wrapper">
+			<div class="swiper-slide">
+				<HomeSection locale={locale} />
+			</div>
+			<div class="swiper-slide">
+				<ProjectsSection locale={locale} />
+			</div>
+			<div class="swiper-slide">
+				<AboutSection locale={locale} />
+			</div>
+			<div class="swiper-slide">
+				<ContactSection locale={locale} />
+			</div>
+		</div>
+		<div class="swiper-pagination"></div>
+	</div>
+</RootLayout>
+
+<script>
+	import Swiper from 'swiper';
+	import { Pagination, Keyboard, Mousewheel } from 'swiper/modules';
+	import 'swiper/css';
+	import 'swiper/css/pagination';
+
+	const BASE_PATHS = ['/', '/projects', '/about', '/contact'];
+
+	function getLocalePaths(locale: string): string[] {
+		if (locale === 'en') return BASE_PATHS;
+		return BASE_PATHS.map((p) => (p === '/' ? `/${locale}` : `/${locale}${p}`));
+	}
+
+	function getInitialSlide(): number {
+		const el = document.getElementById('main-swiper');
+		const attr = el?.dataset.initialSlide;
+		if (attr !== undefined && attr !== '') return parseInt(attr, 10);
+		return 0;
+	}
+
+	function initSwiper() {
+		const el = document.getElementById('main-swiper');
+		const locale = el?.dataset.locale || 'en';
+		const slidePaths = getLocalePaths(locale);
+		const initialSlide = getInitialSlide();
+
+		const swiper = new Swiper('#main-swiper', {
+			modules: [Pagination, Keyboard, Mousewheel],
+			direction: 'horizontal',
+			initialSlide,
+			speed: 500,
+			pagination: {
+				el: '.swiper-pagination',
+				clickable: true,
+			},
+			keyboard: {
+				enabled: true,
+			},
+			mousewheel: {
+				forceToAxis: true,
+				thresholdDelta: 30,
+			},
+			on: {
+				slideChange(s) {
+					const path = slidePaths[s.activeIndex] || slidePaths[0];
+					if (window.location.pathname !== path) {
+						history.replaceState(null, '', path);
+					}
+				},
+			},
+		});
+
+		document.addEventListener('click', (e) => {
+			const anchor = (e.target as HTMLElement).closest('a[href]');
+			if (!anchor) return;
+			const href = anchor.getAttribute('href');
+			if (!href) return;
+			const slideIdx = slidePaths.indexOf(href);
+			if (slideIdx >= 0) {
+				e.preventDefault();
+				swiper.slideTo(slideIdx);
+			}
+		});
+	}
+
+	document.addEventListener('astro:page-load', initSwiper);
+</script>
+
+<style is:global>
+	#main-swiper {
+		width: 100%;
+		height: 100dvh;
+	}
+
+	#main-swiper .swiper-slide {
+		overflow-y: auto;
+	}
+
+	#main-swiper .swiper-pagination-bullet {
+		background: #a1a1aa;
+		opacity: 0.5;
+	}
+
+	#main-swiper .swiper-pagination-bullet-active {
+		background: #f4f4f5;
+		opacity: 1;
+	}
+</style>

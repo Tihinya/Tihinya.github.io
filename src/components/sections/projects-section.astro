@@ -1,0 +1,33 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import H1 from "../h1.astro";
+import { t, getLocalizedPath } from "../../i18n/utils";
+import type { Locale } from "../../i18n/utils";
+
+interface Props {
+	locale?: Locale;
+}
+
+const { locale = 'en' } = Astro.props;
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<div class="p-4 sm:pt-8 sm:px-12 pb-20 min-h-dvh overflow-y-auto">
+	<H1>{t(locale, 'projects.title')}</H1>
+
+	<ul class="mt-4 sm:mt-12 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-16 sm:gap-8">
+		{projects.map((project) => (
+			<li>
+				<a href={getLocalizedPath(`/projects/${project.data.slug}`, locale)} class="block">
+					<Image src={project.data.image} alt={project.data.title} class="aspect-[1/1.33] object-center object-cover rounded-lg shadow-lg mb-4 sm:mb-0 sm:mr-4" />
+				</a>
+				<div class="p-1 sm:p-2">
+					<h2 class="text-base text-zinc-100">{project.data.title}</h2>
+					<p class="text-sm text-zinc-400 text-balance">{project.data.description}</p>
+				</div>
+			</li>
+		))}
+	</ul>
+</div>
